@@ -3,13 +3,9 @@ const app = express();
 
 const { config } = require('./config/index');
 
-app.get('/', (req, res) => {
-    res.send('Hi!');
-})
+const moviesApi = require('./routes/movies.js');
 
-app.get('/json', (req, res) => {
-    res.json({ hello: 'world'});
-})
+moviesApi(app);
 
 app.listen(config.port, () => {
     console.log('Running on port: ' + config.port);
