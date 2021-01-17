@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const ApiKeysService = require('../service/apiKeys');
 
 const { config } = require('../config');
+const UserService = require('../service/users');
+const validateHandler = require('../utils/middleware/validationHandler');
+const { createUserSchema } = require('../utils/schemas/user');
 
 //Basic Strategy
 require('../utils/auth/strategies/basic');
@@ -14,6 +17,7 @@ function authApi(app) {
   app.use('/api/auth', router);
 
   const apiKeysService = new ApiKeysService();
+  const usersService = new UserService();
 
   router.post('/sign-in', async function(req,res,next) {
     const { apiKeyToken } = req.body;
@@ -58,6 +62,20 @@ function authApi(app) {
         next(error);
       }
     })(req,res,next)
+  });
+
+  router.post('/sign-up', validateHandler(createUserSchema), async function(req,res,next){
+    const { body: user } = req;
+
+    try {
+      const createdUserId = await usersService.createUser({ user });
+      res.status(201).json({
+        data: createdUserId,
+        message: 'user created!'
+      })      
+    } catch (error) {
+      next(error);
+    }
   })
 }
 

@@ -1,5 +1,6 @@
 const { valid } = require('@hapi/joi');
 const express = require('express');
+const passport = require('passport');
 
 const UserMoviesService = require('../service/userMovies');
 const validationHandler = require('../utils/middleware/validationHandler');
@@ -14,7 +15,7 @@ function userMoviesApi(app) {
 
   const userMoviesService = new UserMoviesService();
 
-  router.get('/',validationHandler({ userId: userIdSchema}, 'query'),
+  router.get('/', passport.authenticate('jwt', { session: false}), validationHandler({ userId: userIdSchema}, 'query'),
     async function( req, res, next ) {
       const { userId } = req.query;
 
@@ -31,7 +32,7 @@ function userMoviesApi(app) {
     }
   );
 
-  router.post('/', validationHandler(createUserMovieSchema), async function(req,res,next) {
+  router.post('/', passport.authenticate('jwt', { session: false}), validationHandler(createUserMovieSchema), async function(req,res,next) {
     const { body: userMovie} = req;
 
     try {
@@ -47,7 +48,7 @@ function userMoviesApi(app) {
     }
   });
 
-  router.delete('/:userMovieId', validationHandler({ userMovieId: userMovieIdSchema}, 'params'),
+  router.delete('/:userMovieId', passport.authenticate('jwt', { session: false}), validationHandler({ userMovieId: userMovieIdSchema}, 'params'),
     async function(req,res,next) {
       const { userMovieId } = req.params;
       try {
